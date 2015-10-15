@@ -1,29 +1,29 @@
 class Page < ActiveRecord::Base
 
-  def self.save_random
+  def self.save_random new_url = nil
     agent = Mechanize.new
 
-    page = agent.get "https://en.wikipedia.org/"
-    page = agent.page.link_with(:text => 'Random article').click
-    body_text = page.search("mw-content-text")
-    results = []
-    body_text.each do |para|
-      p_results = para.search('p')
-      results.push(p_results.text)
+    if new_url
+      page = agent.get(new_url)
+    else
+    page   = agent.get "https://en.wikipedia.org/"
+    page   = agent.page.link_with(:text => 'Random article').click
+    @links = (page.search("p").search("a")).to_a
     end
-
-binding.pry
-
+    # binding.pry
     saved_page = Page.create(
-    title: page.title,
-    prelude: results[0],
-    preview: results[1],
-    url: page.uri
-    )
+      title: page.title,
+      prelude: page.search("p").first,
+      #preview: page.search("p").second,
+      url: page.uri
+      )
   end
 
 
-  def follow_links(num)
-    #picks (num) of links
-  end
+  # def follow_links(num)
+  #   link_data = @links.map { |l| "http://www.wikipedia.org"+l.attributes["href"].value }
+  #       link_data.sample(nums).each do |u|
+  #         save_page url  end
+  # end
+
 end
