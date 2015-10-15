@@ -8,7 +8,6 @@ class Page < ActiveRecord::Base
     else
     page   = agent.get "https://en.wikipedia.org/"
     page   = agent.page.link_with(:text => 'Random article').click
-    @links = (page.search("p").search("a")).to_a
     end
     # binding.pry
     saved_page = Page.create(
@@ -20,10 +19,13 @@ class Page < ActiveRecord::Base
   end
 
 
-  # def follow_links(num)
-  #   link_data = @links.map { |l| "http://www.wikipedia.org"+l.attributes["href"].value }
-  #       link_data.sample(nums).each do |u|
-  #         save_page url  end
-  # end
+  def follow_links(num)
+    agent = Mechanize.new
+    page = agent.get(self.url)
+    links = (page.search("p").search("a")).to_a
+    link_data = links.map { |l| "http://www.wikipedia.org"+l.attributes["href"].value }
+        link_data.sample(nums).each do |u|
+          Page.save_random u  end
+  end
 
 end
